@@ -5,6 +5,12 @@ function CreateADGroup(){
     $name = $groupObject.name
     New-ADGroup -name $name -GroupScope Global
 }
+function RemoveADGroup(){
+    param( [Parameter(Mandatory=$true)] $groupObject )
+
+    $name = $groupObject.name
+    Remove-ADGroup -Identity $name -Confirm:$False
+}
 
 
 function CreateADUser(){
@@ -37,6 +43,12 @@ function CreateADUser(){
     }
     
    
+}
+function WeakenPasswordPolicy(){
+    secedit /export /cfg C:\Windows\Tasks\secpol.cfg
+    (Get-Content C:\Windows\Tasks\secpol.cfg).replace("PasswordComplexity = 1", "PasswordComplexity = 0").replace("MinimumPasswordLength = 7", "MinimumPasswordLength = 1") | Out-File C:\Windows\Tasks\secpol.cfg
+    secedit /configure /db c:\windows\security\local.sdb /cfg C:\Windows\Tasks\secpol.cfg /areas SECURITYPOLICY
+    rm -force C:\Windows\Tasks\secpol.cfg -confirm:$false
 }
 
 $json = ( Get-Content $JSONFile | ConvertFrom-JSON)
